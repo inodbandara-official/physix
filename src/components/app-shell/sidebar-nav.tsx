@@ -4,11 +4,17 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import { cn } from '@/lib/utils';
+import type { UserRole } from '@/types/database';
 
-import type { NavItem } from './nav-config';
+import { NAV_BY_ROLE } from './nav-config';
 
-export function SidebarNav({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
+/**
+ * Takes a role rather than the item list: the icons are React components,
+ * which cannot be passed as props from a Server Component.
+ */
+export function SidebarNav({ role, onNavigate }: { role: UserRole; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const items = NAV_BY_ROLE[role];
 
   return (
     <nav aria-label="Main" className="flex flex-col gap-1">

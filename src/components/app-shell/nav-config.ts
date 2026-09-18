@@ -9,6 +9,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
+import type { UserRole } from '@/types/database';
+
 export interface NavItem {
   href: string;
   label: string;
@@ -35,3 +37,14 @@ export const STUDENT_NAV: NavItem[] = [
   { href: '/s/syllabus', label: 'Syllabus', icon: BookOpen },
   { href: '/s/profile', label: 'Profile', icon: User },
 ];
+
+/**
+ * A `NavItem` carries an icon, which is a React component — a function, and
+ * therefore not serialisable across the server/client boundary. So the
+ * server passes a *role* and the client components look their own items up
+ * here, rather than receiving the list as a prop.
+ */
+export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
+  teacher: TEACHER_NAV,
+  student: STUDENT_NAV,
+};

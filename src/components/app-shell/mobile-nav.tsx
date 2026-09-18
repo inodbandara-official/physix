@@ -5,17 +5,17 @@ import { Menu } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import type { UserRole } from '@/types/database';
 
 import { BrandMark } from './brand-mark';
 import { SidebarNav } from './sidebar-nav';
-import type { NavItem } from './nav-config';
 
 interface MobileNavProps {
-  items: NavItem[];
+  role: UserRole;
   brand: { lms_name: string; tagline: string; logo_url: string | null };
 }
 
-export function MobileNav({ items, brand }: MobileNavProps) {
+export function MobileNav({ role, brand }: MobileNavProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -31,7 +31,7 @@ export function MobileNav({ items, brand }: MobileNavProps) {
           <BrandMark brand={brand} />
         </SheetHeader>
         <div className="p-3">
-          <SidebarNav items={items} onNavigate={() => setOpen(false)} />
+          <SidebarNav role={role} onNavigate={() => setOpen(false)} />
         </div>
       </SheetContent>
     </Sheet>

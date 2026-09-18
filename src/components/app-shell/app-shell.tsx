@@ -2,17 +2,21 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { ThemeToggle } from '@/components/theme-toggle';
-import type { AppSettingsRow } from '@/types/database';
+import type { AppSettingsRow, UserRole } from '@/types/database';
 
 import { BrandMark } from './brand-mark';
 import { MobileNav } from './mobile-nav';
 import { SidebarNav } from './sidebar-nav';
 import { UserMenu } from './user-menu';
-import type { NavItem } from './nav-config';
 
 interface AppShellProps {
   brand: AppSettingsRow;
-  nav: NavItem[];
+  /**
+   * The role decides the navigation. The items themselves are not passed
+   * down, because each carries an icon component and functions cannot
+   * cross the server/client boundary as props.
+   */
+  role: UserRole;
   userName: string;
   userSubtitle: string;
   profileHref: string;
@@ -27,7 +31,7 @@ interface AppShellProps {
  */
 export function AppShell({
   brand,
-  nav,
+  role,
   userName,
   userSubtitle,
   profileHref,
@@ -49,7 +53,7 @@ export function AppShell({
             </Link>
           </div>
           <div className="flex-1 overflow-y-auto p-3">
-            <SidebarNav items={nav} />
+            <SidebarNav role={role} />
           </div>
           {brand.teacher_name ? (
             <p className="border-t px-4 py-3 text-xs text-muted-foreground">{brand.teacher_name}</p>
@@ -58,7 +62,7 @@ export function AppShell({
 
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur sm:px-6">
-            <MobileNav items={nav} brand={brand} />
+            <MobileNav role={role} brand={brand} />
             <Link href={homeHref} className="lg:hidden">
               <BrandMark brand={brand} compact />
             </Link>

@@ -1,5 +1,4 @@
 import { AppShell } from '@/components/app-shell/app-shell';
-import { TEACHER_NAV } from '@/components/app-shell/nav-config';
 import { requireTeacher } from '@/lib/auth/session';
 import { getBrand } from '@/lib/branding';
 
@@ -9,7 +8,7 @@ export default async function TeacherLayout({ children }: LayoutProps<'/t'>) {
   return (
     <AppShell
       brand={brand}
-      nav={TEACHER_NAV}
+      role="teacher"
       userName={session.profile.preferred_name || session.profile.full_name || 'Teacher'}
       userSubtitle={session.email}
       profileHref="/t/settings"

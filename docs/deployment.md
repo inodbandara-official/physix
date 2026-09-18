@@ -44,6 +44,8 @@ Target: Vercel for the app, Supabase for the database, auth and files.
 
 3. Deploy. The build does not contact the database, so a missing variable surfaces on the first request rather than breaking the build.
 
+   `vercel.json` pins functions to `hnd1` (Tokyo) to sit beside the Supabase project. **If you move the database to another region, change that in the same commit** — a mismatch breaks nothing, it just makes every page slow. See [performance.md](performance.md).
+
 ## 3. After deploying
 
 - Sign in as the teacher and set the LMS name, colours and contact details under **Settings → Branding**

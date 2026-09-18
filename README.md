@@ -178,4 +178,5 @@ The rule that keeps this tidy: **routes never talk to the database directly.** A
 - [docs/architecture.md](docs/architecture.md) — how the pieces fit, and why
 - [docs/database.md](docs/database.md) — schema, relationships and RLS model
 - [docs/deployment.md](docs/deployment.md) — deploying to Vercel and Supabase
+- [docs/performance.md](docs/performance.md) — why pages feel slow, and the region setting that fixes it
 - [docs/roadmap.md](docs/roadmap.md) — what is built, what is next

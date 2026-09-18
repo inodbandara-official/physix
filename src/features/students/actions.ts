@@ -12,16 +12,8 @@ import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 import { generatePassword } from './credentials';
+import type { CredentialResult } from './types';
 import { createStudentSchema, setPasswordSchema, studentNoteSchema, updateStudentSchema } from './schema';
-
-export interface CredentialResult {
-  username: string;
-  /** What the student actually types to sign in. */
-  loginEmail: string;
-  password: string;
-  /** True when that is their own address, so they can reset it themselves. */
-  usesOwnEmail: boolean;
-}
 
 function revalidateStudents(studentId?: string) {
   revalidatePath('/t/students');

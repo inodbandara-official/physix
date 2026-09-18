@@ -14,7 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { issueCredentialsAction, type CredentialResult } from '@/features/students/actions';
+import { issueCredentialsAction } from '@/features/students/actions';
+import type { CredentialResult } from '@/features/students/types';
 import { useActionForm } from '@/lib/use-action-form';
 
 interface CredentialsDialogProps {

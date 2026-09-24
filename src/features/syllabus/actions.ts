@@ -66,7 +66,12 @@ export async function updateSyllabusNodeAction(
 
   const { error } = await supabase
     .from('syllabus_nodes')
-    .update({ name: fields.name, code: fields.code ?? null, description: fields.description ?? null })
+    .update({
+      name: fields.name,
+      name_si: fields.name_si ?? null,
+      code: fields.code ?? null,
+      description: fields.description ?? null,
+    })
     .eq('id', id);
 
   if (error) return actionError(humanizeDatabaseError(error, 'That item could not be renamed.'));

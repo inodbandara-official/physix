@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import type { DifficultyLevel, QuestionStatus, QuestionType } from '@/types/database';
+import type { ContentLanguage, DifficultyLevel, QuestionStatus, QuestionType } from '@/types/database';
 
 import { DIFFICULTY_LABELS, QUESTION_TYPE_LABELS, STATUS_LABELS } from '../types';
 
@@ -46,6 +46,25 @@ export function MarksBadge({ marks }: { marks: number }) {
   return (
     <Badge variant="outline" className="font-normal tabular-nums">
       {marks} {marks === 1 ? 'mark' : 'marks'}
+    </Badge>
+  );
+}
+
+/** Whether a Sinhala reader can use this question yet. */
+export function TranslationBadge({ languages }: { languages: ContentLanguage[] }) {
+  const hasSinhala = languages.includes('si');
+  return (
+    <Badge
+      variant="secondary"
+      className={cn(
+        'font-normal',
+        hasSinhala
+          ? 'bg-indigo-500/12 text-indigo-700 dark:text-indigo-400'
+          : 'bg-muted text-muted-foreground',
+      )}
+      title={hasSinhala ? 'Available in Sinhala' : 'English only — Sinhala readers see English'}
+    >
+      {hasSinhala ? 'EN · සිං' : 'EN'}
     </Badge>
   );
 }

@@ -2,7 +2,8 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { ThemeToggle } from '@/components/theme-toggle';
-import type { AppSettingsRow, UserRole } from '@/types/database';
+import { LanguageToggle } from '@/features/language/components/language-toggle';
+import type { AppSettingsRow, ContentLanguage, UserRole } from '@/types/database';
 
 import { BrandMark } from './brand-mark';
 import { MobileNav } from './mobile-nav';
@@ -17,6 +18,8 @@ interface AppShellProps {
    * cross the server/client boundary as props.
    */
   role: UserRole;
+  /** Reading language for question and syllabus content. */
+  language: ContentLanguage;
   userName: string;
   userSubtitle: string;
   profileHref: string;
@@ -32,6 +35,7 @@ interface AppShellProps {
 export function AppShell({
   brand,
   role,
+  language,
   userName,
   userSubtitle,
   profileHref,
@@ -67,6 +71,7 @@ export function AppShell({
               <BrandMark brand={brand} compact />
             </Link>
             <div className="ml-auto flex items-center gap-1">
+              <LanguageToggle current={language} />
               <ThemeToggle />
               <UserMenu name={userName} subtitle={userSubtitle} profileHref={profileHref} />
             </div>

@@ -9,6 +9,7 @@ export default async function TeacherLayout({ children }: LayoutProps<'/t'>) {
     <AppShell
       brand={brand}
       role="teacher"
+      language={session.profile.language}
       userName={session.profile.preferred_name || session.profile.full_name || 'Teacher'}
       userSubtitle={session.email}
       profileHref="/t/settings"

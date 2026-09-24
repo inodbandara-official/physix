@@ -94,6 +94,13 @@ function NodeRow({
         >
           {node.name}
         </button>
+        {node.name_si ? (
+          <span className="text-xs text-muted-foreground" lang="si">
+            {node.name_si}
+          </span>
+        ) : (
+          <span className="text-xs text-muted-foreground/60">no Sinhala name</span>
+        )}
         {node.code ? <span className="font-mono text-xs text-muted-foreground">{node.code}</span> : null}
         <Badge variant="outline" className="font-normal capitalize">
           {node.kind}
@@ -195,9 +202,26 @@ function SyllabusDialog({ state, onClose }: { state: DialogState; onClose: () =>
             </>
           )}
 
-          <Field name="name" label="Name" errors={errors?.name} required>
+          <Field name="name" label="Name (English)" errors={errors?.name} required>
             <Input id="name" name="name" defaultValue={node?.name} placeholder="Mechanics" required />
           </Field>
+
+          {isEdit ? (
+            <Field
+              name="name_si"
+              label="නම (සිංහල)"
+              hint="Leave blank and Sinhala readers see the English name."
+              errors={errors?.name_si}
+            >
+              <Input
+                id="name_si"
+                name="name_si"
+                lang="si"
+                defaultValue={node?.name_si ?? ''}
+                placeholder="යාන්ත්‍ර විද්‍යාව"
+              />
+            </Field>
+          ) : null}
 
           <Field name="code" label="Code" hint="Optional short reference." errors={errors?.code}>
             <Input id="code" name="code" defaultValue={node?.code ?? ''} placeholder="U1" />

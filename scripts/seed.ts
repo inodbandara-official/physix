@@ -5,9 +5,10 @@
  *
  *   npm run db:seed
  *
- * Passwords come from the environment (SEED_TEACHER_PASSWORD /
- * SEED_STUDENT_PASSWORD). Nothing is hardcoded, so a seeded database is never
- * accidentally shipped with a known password.
+ * The teacher's name, email and passwords all come from the environment
+ * (SEED_TEACHER_NAME / SEED_TEACHER_EMAIL / SEED_TEACHER_PASSWORD /
+ * SEED_STUDENT_PASSWORD), so no real person is named in this file and a
+ * seeded database is never shipped with a known password.
  *
  * Assessments and attempts are seeded by later phases.
  */
@@ -27,6 +28,9 @@ const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const domain = process.env.AUTH_EMAIL_DOMAIN ?? 'physix.local';
 const teacherEmail = process.env.SEED_TEACHER_EMAIL ?? 'teacher@example.com';
+// Shown in the sidebar and on the sign-in page, so it belongs to the person
+// running the seed rather than to this script.
+const teacherName = process.env.SEED_TEACHER_NAME?.trim() || 'Physics Teacher';
 const teacherPassword = process.env.SEED_TEACHER_PASSWORD;
 const studentPassword = process.env.SEED_STUDENT_PASSWORD;
 
@@ -188,6 +192,45 @@ const SYLLABUS: { unit: string; topics: { name: string; subtopics: string[] }[] 
   },
 ];
 
+
+/**
+ * Sinhala names for the units and topics above.
+ *
+ * Standard A/L terminology, offered as a starting point — the teacher can
+ * correct any of them in the syllabus editor, and a missing entry simply
+ * shows the English name to Sinhala readers. Subtopics are left untranslated
+ * here and can be filled in from the UI.
+ */
+const SYLLABUS_SI: Record<string, string> = {
+  "Measurement": "මිනුම්",
+  "Mechanics": "යාන්ත්\u200dර විද්\u200dයාව",
+  "Oscillations and Waves": "දෝලන හා තරංග",
+  "Thermal Physics": "තාප භෞතික විද්\u200dයාව",
+  "Optics": "ප්\u200dරකාශ විද්\u200dයාව",
+  "Electricity and Magnetism": "විද්\u200dයුතය හා චුම්බකත්වය",
+  "Modern Physics": "නූතන භෞතික විද්\u200dයාව",
+  "Physical Quantities and Units": "භෞතික රාශි හා ඒකක",
+  "Motion": "චලිතය",
+  "Newton’s Laws": "නිව්ටන්ගේ නියම",
+  "Work, Energy and Power": "කාර්යය, ශක්තිය හා බලය",
+  "Circular Motion": "වෘත්තාකාර චලිතය",
+  "Gravitational Fields": "ගුරුත්වාකර්ෂණ ක්ෂේත්\u200dර",
+  "Simple Harmonic Motion": "සරල අනුවර්තී චලිතය",
+  "Wave Motion": "තරංග චලිතය",
+  "Interference and Diffraction": "ව්\u200dයතිකරණය හා විවර්තනය",
+  "Heat and Temperature": "තාපය හා උෂ්ණත්වය",
+  "Gas Laws": "වායු නියම",
+  "Heat Transfer": "තාප සම්ප්\u200dරේෂණය",
+  "Reflection and Refraction": "පරාවර්තනය හා වර්තනය",
+  "Optical Instruments": "ප්\u200dරකාශ උපකරණ",
+  "Electric Fields": "විද්\u200dයුත් ක්ෂේත්\u200dර",
+  "Current Electricity": "ධාරා විද්\u200dයුතය",
+  "Magnetic Fields": "චුම්බක ක්ෂේත්\u200dර",
+  "Alternating Current": "ප්\u200dරත්\u200dයාවර්ත ධාරාව",
+  "Photoelectric Effect": "ප්\u200dරභා විද්\u200dයුත් ප්\u200dරභාවය",
+  "Atomic and Nuclear Physics": "පරමාණුක හා න්\u200dයෂ්ටික භෞතික විද්\u200dයාව",
+};
+
 const BATCHES = [
   { name: 'Colombo Saturday', code: 'CMB-SAT', al_year: 2026, schedule_note: 'Saturdays, 8:00 AM' },
   { name: 'Colombo Sunday', code: 'CMB-SUN', al_year: 2026, schedule_note: 'Sundays, 8:00 AM' },
@@ -299,6 +342,7 @@ async function seedSyllabus() {
     parent_id: string | null;
     kind: 'unit' | 'topic' | 'subtopic';
     name: string;
+    name_si: string | null;
     sort_order: number;
   };
 
@@ -332,6 +376,7 @@ async function seedSyllabus() {
       parent_id: null,
       kind: 'unit' as const,
       name: entry.unit,
+      name_si: SYLLABUS_SI[entry.unit] ?? null,
       sort_order: (index + 1) * 10,
     })),
   );
@@ -341,7 +386,13 @@ async function seedSyllabus() {
     const unitId = idByKey.get(keyOf(null, entry.unit));
     if (!unitId) throw new Error(`Unit "${entry.unit}" was not created.`);
     entry.topics.forEach((topic, index) => {
-      topics.push({ parent_id: unitId, kind: 'topic', name: topic.name, sort_order: (index + 1) * 10 });
+      topics.push({
+        parent_id: unitId,
+        kind: 'topic',
+        name: topic.name,
+        name_si: SYLLABUS_SI[topic.name] ?? null,
+        sort_order: (index + 1) * 10,
+      });
     });
   }
   await insertLevel('topics', topics);
@@ -353,11 +404,32 @@ async function seedSyllabus() {
       const topicId = idByKey.get(keyOf(unitId, topic.name));
       if (!topicId) throw new Error(`Topic "${topic.name}" was not created.`);
       topic.subtopics.forEach((name, index) => {
-        subtopics.push({ parent_id: topicId, kind: 'subtopic', name, sort_order: (index + 1) * 10 });
+        subtopics.push({
+          parent_id: topicId,
+          kind: 'subtopic',
+          name,
+          name_si: SYLLABUS_SI[name] ?? null,
+          sort_order: (index + 1) * 10,
+        });
       });
     }
   }
   await insertLevel('subtopics', subtopics);
+
+  // Existing rows predate the Sinhala columns, so fill in any that are blank.
+  const named = [...SYLLABUS.map((entry) => entry.unit), ...SYLLABUS.flatMap((entry) => entry.topics.map((topic) => topic.name))];
+  for (const name of named) {
+    const translation = SYLLABUS_SI[name];
+    if (!translation) continue;
+    await call(`name "${name}" in Sinhala`, () =>
+      supabase
+        .from('syllabus_nodes')
+        .update({ name_si: translation })
+        .eq('name', name)
+        .is('name_si', null)
+        .select('id'),
+    );
+  }
 
   console.log(`\u2713 Syllabus: ${SYLLABUS.length} units, ${topics.length} topics, ${subtopics.length} subtopics`);
 }
@@ -571,17 +643,17 @@ async function main() {
   console.log('Seeding PHYSIX demo data…\n');
 
   // --- Teacher --------------------------------------------------------
-  const teacherId = await upsertAuthUser(teacherEmail, teacherPassword!, 'teacher', 'A. Jayasuriya');
+  const teacherId = await upsertAuthUser(teacherEmail, teacherPassword!, 'teacher', teacherName);
   await supabase
     .from('profiles')
-    .update({ role: 'teacher', full_name: 'A. Jayasuriya', email: teacherEmail })
+    .update({ role: 'teacher', full_name: teacherName, email: teacherEmail })
     .eq('id', teacherId);
-  console.log(`✓ Teacher: ${teacherEmail}`);
+  console.log(`✓ Teacher: ${teacherName} <${teacherEmail}>`);
 
   // --- Branding -------------------------------------------------------
   await supabase
     .from('app_settings')
-    .update({ teacher_name: 'A. Jayasuriya', contact_email: teacherEmail })
+    .update({ teacher_name: teacherName, contact_email: teacherEmail })
     .eq('id', true);
 
   // --- Syllabus -------------------------------------------------------

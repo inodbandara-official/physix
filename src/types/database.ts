@@ -23,6 +23,7 @@ export type QuestionType =
   | 'essay';
 export type QuestionStatus = 'draft' | 'published' | 'archived';
 export type DifficultyLevel = 'very_easy' | 'easy' | 'medium' | 'hard' | 'very_hard';
+export type ContentLanguage = 'en' | 'si';
 
 export type ProfileRow = {
   id: string;
@@ -31,6 +32,8 @@ export type ProfileRow = {
   preferred_name: string | null;
   email: string;
   avatar_url: string | null;
+  /** Which language this person reads questions and the syllabus in. */
+  language: ContentLanguage;
   created_at: string;
   updated_at: string;
 }
@@ -84,8 +87,11 @@ export type SyllabusNodeRow = {
   parent_id: string | null;
   kind: SyllabusKind;
   name: string;
+  /** Sinhala name. Null means Sinhala readers see the English one. */
+  name_si: string | null;
   code: string | null;
   description: string | null;
+  description_si: string | null;
   sort_order: number;
   archived_at: string | null;
   created_at: string;
@@ -112,6 +118,8 @@ export type AppSettingsRow = {
   secondary_color: string;
   contact_email: string | null;
   contact_phone: string | null;
+  /** What a student sees before choosing a language of their own. */
+  default_language: ContentLanguage;
   updated_at: string;
 }
 
@@ -150,6 +158,8 @@ export type QuestionRow = {
   current_unit_id: string | null;
   current_year: number | null;
   current_seconds: number | null;
+  /** Languages the current version can actually be read in. */
+  current_languages: ContentLanguage[];
 }
 
 export type QuestionVersionRow = {
@@ -176,6 +186,8 @@ export type QuestionVersionRow = {
   hint: string | null;
   teacher_notes: string | null;
   figures: Json;
+  /** Prose translations keyed by language; validated before every write. */
+  translations: Json;
   created_by: string | null;
   created_at: string;
 }
@@ -274,6 +286,7 @@ export interface Database {
       question_type: QuestionType;
       question_status: QuestionStatus;
       difficulty_level: DifficultyLevel;
+      content_language: ContentLanguage;
     };
     CompositeTypes: Record<string, never>;
   };

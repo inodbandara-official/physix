@@ -1,4 +1,4 @@
-import type { SyllabusNodeRow } from '@/types/database';
+import type { ContentLanguage, SyllabusNodeRow } from '@/types/database';
 
 export interface SyllabusNode extends SyllabusNodeRow {
   children: SyllabusNode[];
@@ -47,4 +47,24 @@ export function flattenSyllabus(
     out.push(...flattenSyllabus(node.children, label));
   }
   return out;
+}
+
+/**
+ * The name a reader sees. A missing Sinhala name falls back to English
+ * rather than showing a blank branch.
+ */
+export function nodeName(
+  node: Pick<SyllabusNodeRow, 'name' | 'name_si'>,
+  language: ContentLanguage,
+): string {
+  if (language === 'si') return node.name_si?.trim() || node.name;
+  return node.name;
+}
+
+export function nodeDescription(
+  node: Pick<SyllabusNodeRow, 'description' | 'description_si'>,
+  language: ContentLanguage,
+): string | null {
+  if (language === 'si') return node.description_si?.trim() || node.description;
+  return node.description;
 }

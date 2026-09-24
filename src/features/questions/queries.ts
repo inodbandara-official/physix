@@ -1,9 +1,10 @@
 import 'server-only';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import type { QuestionRow, QuestionVersionRow } from '@/types/database';
+import type { ContentLanguage, QuestionRow, QuestionVersionRow } from '@/types/database';
 
 import type { QuestionFilters } from './schema';
+import type { QuestionTranslations } from './translation';
 import type { Figure, QuestionBody } from './types';
 
 export { nextCopyCode, suggestQuestionCode } from './codes';
@@ -24,6 +25,7 @@ export interface QuestionListItem {
   syllabus_node_id: string | null;
   unit_id: string | null;
   source_year: number | null;
+  languages: ContentLanguage[];
   tags: string[];
 }
 
@@ -68,6 +70,8 @@ export async function listQuestions(filters: QuestionFilters): Promise<QuestionP
   if (filters.unit) query = query.eq('current_unit_id', filters.unit);
   if (filters.node) query = query.eq('current_node_id', filters.node);
   if (filters.year) query = query.eq('current_year', filters.year);
+  if (filters.translated === 'si') query = query.contains('current_languages', ['si']);
+  if (filters.translated === 'missing-si') query = query.not('current_languages', 'cs', '{si}');
   if (filters.q) {
     const term = `%${filters.q.replace(/[%_]/g, '')}%`;
     query = query.or(`current_stem.ilike.${term},current_title.ilike.${term},question_code.ilike.${term}`);
@@ -105,6 +109,7 @@ function toListItem(row: QuestionRow, tags: string[]): QuestionListItem {
     syllabus_node_id: row.current_node_id,
     unit_id: row.current_unit_id,
     source_year: row.current_year,
+    languages: row.current_languages ?? ['en'],
     tags,
   };
 }
@@ -123,10 +128,12 @@ async function loadTags(questionIds: string[]): Promise<Map<string, string[]>> {
   return map;
 }
 
-export interface QuestionVersionDetail extends Omit<QuestionVersionRow, 'marks' | 'body' | 'figures'> {
+export interface QuestionVersionDetail
+  extends Omit<QuestionVersionRow, 'marks' | 'body' | 'figures' | 'translations'> {
   marks: number;
   body: QuestionBody;
   figures: Figure[];
+  translations: QuestionTranslations;
 }
 
 export interface QuestionDetail {
@@ -176,6 +183,7 @@ export function toVersionDetail(row: QuestionVersionRow): QuestionVersionDetail 
     marks: Number(row.marks),
     body: row.body as unknown as QuestionBody,
     figures: (row.figures ?? []) as unknown as Figure[],
+    translations: (row.translations ?? {}) as unknown as QuestionTranslations,
   };
 }
 

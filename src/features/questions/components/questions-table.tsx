@@ -7,6 +7,7 @@ import {
   ArchiveRestore,
   Copy,
   FileQuestion,
+  Languages,
   MoreHorizontal,
   PencilLine,
   Plus,
@@ -39,7 +40,13 @@ import {
   setQuestionStatusAction,
 } from '../actions';
 import type { QuestionListItem } from '../queries';
-import { DifficultyBadge, MarksBadge, QuestionStatusBadge, QuestionTypeBadge } from './question-badges';
+import {
+  DifficultyBadge,
+  MarksBadge,
+  QuestionStatusBadge,
+  QuestionTypeBadge,
+  TranslationBadge,
+} from './question-badges';
 
 interface QuestionsTableProps {
   questions: QuestionListItem[];
@@ -147,6 +154,7 @@ export function QuestionsTable({ questions, filtered, nodeLabels }: QuestionsTab
               <TableHead>Difficulty</TableHead>
               <TableHead>Marks</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Language</TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
@@ -188,6 +196,9 @@ export function QuestionsTable({ questions, filtered, nodeLabels }: QuestionsTab
                   <QuestionStatusBadge status={question.archived_at ? 'archived' : question.status} />
                 </TableCell>
                 <TableCell>
+                  <TranslationBadge languages={question.languages} />
+                </TableCell>
+                <TableCell>
                   <RowActions
                     question={question}
                     disabled={isPending}
@@ -223,6 +234,7 @@ export function QuestionsTable({ questions, filtered, nodeLabels }: QuestionsTab
               <QuestionTypeBadge type={question.type} />
               <DifficultyBadge difficulty={question.difficulty} />
               <MarksBadge marks={question.marks} />
+              <TranslationBadge languages={question.languages} />
             </div>
           </li>
         ))}
@@ -256,6 +268,12 @@ function RowActions({
           <Link href={`/t/questions/${question.id}/edit`}>
             <PencilLine className="size-4" aria-hidden />
             Edit
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={`/t/questions/${question.id}/translate`}>
+            <Languages className="size-4" aria-hidden />
+            {question.languages.includes('si') ? 'Edit Sinhala' : 'Translate to Sinhala'}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem

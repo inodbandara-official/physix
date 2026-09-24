@@ -18,6 +18,7 @@ export const DEFAULT_BRAND: AppSettingsRow = {
   secondary_color: '#12b3a6',
   contact_email: null,
   contact_phone: null,
+  default_language: 'en',
   updated_at: new Date(0).toISOString(),
 };
 

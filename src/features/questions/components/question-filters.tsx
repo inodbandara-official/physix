@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DIFFICULTY_LABELS, DIFFICULTY_ORDER, QUESTION_TYPE_LABELS } from '../types';
 
 const ANY = 'any';
-const FILTER_KEYS = ['q', 'unit', 'node', 'type', 'difficulty', 'status', 'tag', 'year', 'archived'];
+const FILTER_KEYS = ['q', 'unit', 'node', 'type', 'difficulty', 'status', 'tag', 'year', 'archived', 'translated'];
 
 interface QuestionFiltersProps {
   units: { id: string; name: string }[];
@@ -79,7 +79,7 @@ export function QuestionFilters({ units, tags, years }: QuestionFiltersProps) {
         ) : null}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-7">
         <FilterSelect
           id="filter-unit"
           label="Unit"
@@ -126,6 +126,18 @@ export function QuestionFilters({ units, tags, years }: QuestionFiltersProps) {
           placeholder="Any tag"
           onChange={(value) => apply({ tag: value })}
           options={tags.map((tag) => ({ value: tag.tag, label: `${tag.tag} (${tag.count})` }))}
+        />
+
+        <FilterSelect
+          id="filter-translated"
+          label="Sinhala"
+          value={searchParams.get('translated') ?? ANY}
+          placeholder="Any"
+          onChange={(value) => apply({ translated: value })}
+          options={[
+            { value: 'si', label: 'Translated' },
+            { value: 'missing-si', label: 'Not translated' },
+          ]}
         />
 
         <FilterSelect

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { History, PencilLine } from 'lucide-react';
+import { History, Languages, PencilLine } from 'lucide-react';
 
 import { EmptyState } from '@/components/empty-state';
 import { MathText, mathToPlainText } from '@/components/math-text';
@@ -14,8 +14,10 @@ import {
   MarksBadge,
   QuestionStatusBadge,
   QuestionTypeBadge,
+  TranslationBadge,
 } from '@/features/questions/components/question-badges';
 import { QuestionPreview } from '@/features/questions/components/question-preview';
+import { isReviewed } from '@/features/questions/translation';
 import {
   collectFigurePaths,
   getQuestion,
@@ -56,6 +58,8 @@ export default async function QuestionDetailPage(props: PageProps<'/t/questions/
     getSyllabusTree(),
   ]);
 
+  const hasSinhala = isReviewed(current.translations, 'si');
+
   const nodeLabel = viewing.syllabus_node_id
     ? flattenSyllabus(tree).find((node) => node.id === viewing.syllabus_node_id)?.label
     : null;
@@ -66,12 +70,20 @@ export default async function QuestionDetailPage(props: PageProps<'/t/questions/
         title={current.title || mathToPlainText(current.stem, 70)}
         description={`${question.question_code} · version ${current.version_number}`}
         actions={
-          <Button asChild variant="outline">
-            <Link href={`/t/questions/${question.id}/edit`}>
-              <PencilLine className="size-4" aria-hidden />
-              Edit
-            </Link>
-          </Button>
+          <>
+            <Button asChild variant="outline">
+              <Link href={`/t/questions/${question.id}/translate`}>
+                <Languages className="size-4" aria-hidden />
+                {hasSinhala ? 'Edit Sinhala' : 'Translate'}
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href={`/t/questions/${question.id}/edit`}>
+                <PencilLine className="size-4" aria-hidden />
+                Edit
+              </Link>
+            </Button>
+          </>
         }
       />
 
@@ -86,6 +98,7 @@ export default async function QuestionDetailPage(props: PageProps<'/t/questions/
           </Badge>
         ) : null}
         {!isAutoMarked(viewing.body) ? <Badge variant="outline">Marked by hand</Badge> : null}
+        <TranslationBadge languages={hasSinhala ? ['en', 'si'] : ['en']} />
         {tags.map((tag) => (
           <Badge key={tag} variant="outline" className="font-normal">
             {tag}

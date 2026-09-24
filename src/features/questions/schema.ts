@@ -204,6 +204,8 @@ export const questionFiltersSchema = z.object({
   tag: z.string().trim().max(40).optional(),
   year: z.coerce.number().int().min(1950).max(2100).optional(),
   archived: z.enum(['active', 'archived', 'all']).default('active'),
+  /** Which questions a Sinhala reader can actually use. */
+  translated: z.enum(['any', 'si', 'missing-si']).default('any'),
   page: z.coerce.number().int().min(1).default(1),
   perPage: z.coerce.number().int().min(10).max(100).default(25),
 });
@@ -330,3 +332,53 @@ export function effectiveMarks(body: QuestionBody, declaredMarks: number): numbe
 export function isSimpleBody(body: QuestionBody): body is SimpleQuestionBody {
   return body.kind !== 'structured';
 }
+
+// ---------------------------------------------------------------------
+// Translations
+//
+// Prose only. Nothing here can change how a question is marked — the
+// answer key, marks and tolerances live in `body` and are shared by every
+// language.
+// ---------------------------------------------------------------------
+
+const translatedText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .optional()
+    .transform((value) => (value === '' ? undefined : value));
+
+export const questionTranslationSchema = z.object({
+  title: translatedText(160),
+  stem: translatedText(20000),
+  explanation: translatedText(8000),
+  solution: translatedText(12000),
+  hint: translatedText(1000),
+  commonMistake: translatedText(2000),
+  options: z.record(z.string(), z.string().trim().max(2000)).optional(),
+  parts: z
+    .record(
+      z.string(),
+      z.object({ prompt: translatedText(4000), explanation: translatedText(4000) }),
+    )
+    .optional(),
+  figures: z
+    .record(z.string(), z.object({ alt: translatedText(200), caption: translatedText(300) }))
+    .optional(),
+  reviewed: z.boolean().default(false),
+});
+
+export const questionTranslationsSchema = z
+  .object({ si: questionTranslationSchema.optional() })
+  .default({});
+
+export const contentLanguageSchema = z.enum(['en', 'si']);
+
+export const saveTranslationSchema = z.object({
+  question_id: z.string().uuid(),
+  language: z.enum(['si']),
+  translation: questionTranslationSchema,
+});
+
+export const setLanguageSchema = z.object({ language: contentLanguageSchema });

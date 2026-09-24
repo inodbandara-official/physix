@@ -32,6 +32,12 @@ export const syllabusNodeSchema = z
 export const updateSyllabusNodeSchema = z.object({
   id: z.string().uuid(),
   name: z.string().trim().min(2, 'Give this a name.').max(120),
+  name_si: z
+    .string()
+    .trim()
+    .max(120)
+    .optional()
+    .transform((value) => (value === '' ? undefined : value)),
   code: z
     .string()
     .trim()

@@ -6,8 +6,10 @@ import type { SyllabusNodeRow } from '@/types/database';
 function node(partial: Partial<SyllabusNodeRow> & Pick<SyllabusNodeRow, 'id' | 'kind' | 'name'>): SyllabusNodeRow {
   return {
     parent_id: null,
+    name_si: null,
     code: null,
     description: null,
+    description_si: null,
     sort_order: 0,
     archived_at: null,
     created_at: '2026-01-01T00:00:00Z',

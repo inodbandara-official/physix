@@ -128,3 +128,128 @@
     @apply font-sans;
   }
 }
+/* =====================================================================
+   Neumorphic auth surface
+   =====================================================================
+   Soft-UI treatment for the signed-out pages: sign in, forgot password,
+   reset password. Deliberately scoped to `.neu` rather than applied
+   globally — the teacher's dashboard is an analytics control centre and
+   wants crisp edges, not soft ones.
+
+   Neumorphism's usual failing is contrast: shapes defined only by faint
+   shadows disappear for low-vision users, and unbordered inputs stop
+   looking like inputs. Two rules keep that in check here.
+
+     1. Shadows carry *depth*, never meaning. Text keeps the normal
+        foreground tokens and their AA contrast; nothing is legible only
+        because of a shadow.
+     2. Every control keeps a real focus ring. `:focus-visible` is
+        strengthened, not softened.
+   ===================================================================== */
+
+.neu {
+  --neu-surface: oklch(0.955 0.004 255);
+  --neu-light: oklch(1 0 0);
+  --neu-dark: oklch(0.874 0.008 255);
+  --neu-edge: oklch(0.9 0.006 255);
+
+  --neu-distance: 6px;
+  --neu-blur: 14px;
+
+  /* The soft surface is darker than the white card it replaces, which
+     drops secondary text to about 3.5:1 — under the 4.5:1 AA needs. This
+     pulls it back to 5.4:1. Dark mode already clears the bar at 7.4:1. */
+  --muted-foreground: oklch(0.47 0 0);
+
+  background: var(--neu-surface);
+  color: var(--foreground);
+}
+
+.dark .neu {
+  --neu-surface: oklch(0.225 0.008 260);
+  --neu-light: oklch(0.285 0.01 260);
+  --neu-dark: oklch(0.155 0.01 260);
+  --neu-edge: oklch(0.32 0.01 260);
+}
+
+/* Extruded: the card, the brand mark. */
+.neu-raised {
+  background: var(--neu-surface);
+  border: 1px solid var(--neu-edge);
+  box-shadow:
+    var(--neu-distance) var(--neu-distance) var(--neu-blur) var(--neu-dark),
+    calc(var(--neu-distance) * -1) calc(var(--neu-distance) * -1) var(--neu-blur) var(--neu-light);
+}
+
+/* Pressed in: form fields, so they read as something you type into. */
+.neu-inset {
+  background: var(--neu-surface);
+  /* The border does the work of saying "this is a field" at a glance;
+     the inset shadow only adds the depth. Without it, an unfocused input
+     on a matching background is genuinely hard to find. */
+  border: 1px solid var(--neu-edge);
+  box-shadow:
+    inset 3px 3px 7px var(--neu-dark),
+    inset -3px -3px 7px var(--neu-light);
+}
+
+.neu-inset:focus-visible,
+.neu-inset:has(> :focus-visible) {
+  border-color: var(--ring);
+  box-shadow:
+    inset 2px 2px 5px var(--neu-dark),
+    inset -2px -2px 5px var(--neu-light),
+    0 0 0 3px color-mix(in oklch, var(--ring) 45%, transparent);
+}
+
+.neu-inset[aria-invalid='true'] {
+  border-color: var(--destructive);
+  box-shadow:
+    inset 3px 3px 7px var(--neu-dark),
+    inset -3px -3px 7px var(--neu-light),
+    0 0 0 3px color-mix(in oklch, var(--destructive) 28%, transparent);
+}
+
+/* The primary action keeps its brand colour and its contrast: a
+   same-as-background button would be the one control nobody can find. */
+.neu-action {
+  box-shadow:
+    4px 4px 10px var(--neu-dark),
+    -4px -4px 10px var(--neu-light);
+  transition: box-shadow 150ms ease, transform 150ms ease;
+}
+
+.neu-action:hover:not(:disabled) {
+  box-shadow:
+    5px 5px 12px var(--neu-dark),
+    -5px -5px 12px var(--neu-light);
+}
+
+/* Pressing pushes it into the surface, which is the whole idea. */
+.neu-action:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow:
+    inset 3px 3px 7px color-mix(in oklch, var(--neu-dark) 70%, transparent),
+    inset -3px -3px 7px color-mix(in oklch, var(--neu-light) 55%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neu-action {
+    transition: none;
+  }
+  .neu-action:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Soft UI leans on gradients the eye reads as light falling on a surface.
+   At high contrast that reading is worse than useless, so it is dropped
+   and ordinary borders take over. */
+@media (prefers-contrast: more) {
+  .neu-raised,
+  .neu-inset,
+  .neu-action {
+    box-shadow: none;
+    border: 1px solid var(--foreground);
+  }
+}

@@ -87,7 +87,7 @@ export default async function BatchDetailPage(props: PageProps<'/t/batches/[id]'
       </Card>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
           <div className="space-y-1.5">
             <CardTitle>Batch performance</CardTitle>
             <CardDescription>Averages, ranking and topic strengths for this batch.</CardDescription>

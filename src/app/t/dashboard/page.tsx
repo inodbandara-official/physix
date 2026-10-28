@@ -8,13 +8,15 @@ import { StatCard } from '@/components/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { listAssessments } from '@/features/assessments/queries';
 import { getTeacherOverview } from '@/features/dashboard/queries';
 import { formatDate, formatRelative, pluralize } from '@/lib/format';
 
 export const metadata: Metadata = { title: 'Dashboard' };
 
 export default async function TeacherDashboardPage() {
-  const overview = await getTeacherOverview();
+  const [overview, assessments] = await Promise.all([getTeacherOverview(), listAssessments()]);
+  const awaitingMarking = assessments.reduce((sum, assessment) => sum + assessment.awaitingMarking, 0);
   const maxBatchSize = Math.max(1, ...overview.batchSizes.map((batch) => batch.students));
 
   return (
@@ -29,6 +31,9 @@ export default async function TeacherDashboardPage() {
             </Button>
             <Button asChild variant="outline">
               <Link href="/t/questions/new">New question</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/t/assessments/new">New assessment</Link>
             </Button>
             <Button asChild>
               <Link href="/t/students/new">Add student</Link>
@@ -168,20 +173,50 @@ export default async function TeacherDashboardPage() {
       </div>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
           <div className="space-y-1.5">
-            <CardTitle>Assessment activity</CardTitle>
+            <CardTitle>Assessments</CardTitle>
             <CardDescription>
-              Scores, rankings and topic weaknesses appear here once the assessment engine is in place.
+              {awaitingMarking > 0
+                ? `${pluralize(awaitingMarking, 'attempt')} waiting for your marks.`
+                : 'The latest quizzes and tests, and how many students have sat them.'}
             </CardDescription>
           </div>
-          <Badge variant="secondary">Phase 3</Badge>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/t/assessments">See all</Link>
+          </Button>
         </CardHeader>
         <CardContent>
-          <EmptyState
-            title="No assessments yet"
-            description="The question bank is ready. Once assessments are built on top of it, averages, rankings and topic weaknesses fill in here automatically."
-          />
+          {assessments.length === 0 ? (
+            <EmptyState
+              title="No assessments yet"
+              description="Build a quiz or test from your question bank and set it for a batch."
+              action={
+                <Button asChild size="sm">
+                  <Link href="/t/assessments/new">New assessment</Link>
+                </Button>
+              }
+            />
+          ) : (
+            <ul className="divide-y">
+              {assessments.slice(0, 6).map((assessment) => (
+                <li key={assessment.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5 first:pt-0">
+                  <Link href={`/t/assessments/${assessment.id}`} className="min-w-0 text-sm font-medium hover:underline">
+                    {assessment.title}
+                  </Link>
+                  <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {assessment.status === 'draft' ? <Badge variant="outline">Draft</Badge> : null}
+                    {pluralize(assessment.attemptCount, 'attempt')}
+                    {assessment.awaitingMarking > 0 ? (
+                      <Link href={`/t/assessments/${assessment.id}/results`}>
+                        <Badge>{assessment.awaitingMarking} to mark</Badge>
+                      </Link>
+                    ) : null}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </CardContent>
       </Card>
 

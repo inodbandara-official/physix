@@ -246,10 +246,15 @@ export async function updateQuestionAction(
     figures: currentVersion.figures,
   };
 
+  const { count: servedCount } = await supabase
+    .from('attempt_questions')
+    .select('id', { count: 'exact', head: true })
+    .eq('question_version_id', currentVersion.id);
+  const servedInAttempt = (servedCount ?? 0) > 0;
+
   // A question being published for the first time keeps version 1: it has
   // no history worth preserving until it has actually been used.
-  const fork =
-    question.status !== 'draft' && shouldCreateNewVersion(question.status, previousContent, nextContent);
+  const fork = shouldCreateNewVersion(question.status, previousContent, nextContent, servedInAttempt);
 
   if (fork) {
     const { data: version, error } = await supabase

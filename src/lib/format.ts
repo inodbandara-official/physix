@@ -1,15 +1,21 @@
 import { format, formatDistanceToNowStrict, isValid, parseISO } from 'date-fns';
 
+import { formatInZone } from './time';
+
 export function formatDate(value: string | Date | null | undefined, fallback = '—'): string {
   if (!value) return fallback;
   const date = typeof value === 'string' ? parseISO(value) : value;
   return isValid(date) ? format(date, 'd MMM yyyy') : fallback;
 }
 
+/**
+ * Always Colombo time. `date-fns` would format in the server's own zone,
+ * which on Vercel is UTC — five and a half hours off for every reader.
+ */
 export function formatDateTime(value: string | Date | null | undefined, fallback = '—'): string {
   if (!value) return fallback;
   const date = typeof value === 'string' ? parseISO(value) : value;
-  return isValid(date) ? format(date, 'd MMM yyyy, HH:mm') : fallback;
+  return isValid(date) ? formatInZone(date) : fallback;
 }
 
 export function formatRelative(value: string | Date | null | undefined, fallback = '—'): string {

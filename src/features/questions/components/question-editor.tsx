@@ -455,7 +455,7 @@ export function QuestionEditor({
           </Card>
 
           <Card>
-            <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
+            <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
               <CardTitle className="flex items-center gap-2">
                 <Eye className="size-4" aria-hidden />
                 Preview

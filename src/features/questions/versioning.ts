@@ -75,11 +75,20 @@ export function stableStringify(value: unknown): string {
   return `{${entries.join(',')}}`;
 }
 
+/**
+ * `servedInAttempt` closes the one gap in the draft rule: a published
+ * question moved back to draft is still a record if students have sat it.
+ * Editing it in place would rewrite what those attempts showed, so it
+ * forks exactly as a published question would. The database refuses the
+ * in-place write regardless (migration 0005); this keeps the editor from
+ * ever asking it to.
+ */
 export function shouldCreateNewVersion(
   status: QuestionStatus,
   previous: VersionContent,
   next: VersionContent,
+  servedInAttempt = false,
 ): boolean {
-  if (status === 'draft') return false;
+  if (status === 'draft' && !servedInAttempt) return false;
   return contentFingerprint(previous) !== contentFingerprint(next);
 }

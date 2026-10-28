@@ -77,7 +77,13 @@ export function AppShell({
             </div>
           </header>
 
-          <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
+          {/* Students read in their chosen language; marking it lets the
+              browser, screen readers and the Sinhala typography rules in
+              globals.css treat the text correctly. */}
+          <main
+            lang={role === 'student' ? language : undefined}
+            className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8"
+          >
             <div className="space-y-6">{children}</div>
           </main>
         </div>

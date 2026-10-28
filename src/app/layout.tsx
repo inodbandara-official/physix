@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Noto_Sans_Sinhala } from 'next/font/google';
 
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
@@ -10,6 +10,15 @@ import './globals.css';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
+// Windows ships Iskoola Pota and phones ship whatever the vendor chose, and
+// several of those break conjuncts such as ්‍ය and ්‍ර. One font everywhere
+// means every student sees the same, correctly shaped text. Only the
+// Sinhala subset is loaded; Geist covers everything else.
+const notoSinhala = Noto_Sans_Sinhala({
+  variable: '--font-sinhala',
+  subsets: ['sinhala'],
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: {
@@ -30,7 +39,7 @@ export const viewport = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} h-full`}>
+    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${notoSinhala.variable} h-full`}>
       <body className="min-h-full antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}

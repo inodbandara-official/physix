@@ -8,10 +8,17 @@ import type { Database } from '@/types/database';
 /**
  * Service-role client. Bypasses Row Level Security completely.
  *
- * Use it for exactly one thing: creating, updating and deleting auth users,
- * which the Supabase Auth admin API requires. Never use it to read or write
- * application data on behalf of a request — that would silently defeat every
- * RLS policy in migration 0001.
+ * Used for exactly two things:
+ *
+ * 1. Creating, updating and deleting auth users, which the Supabase Auth
+ *    admin API requires.
+ * 2. The assessment pipeline in `src/features/attempts/privileged.ts`:
+ *    reading the answer key a student may not see, and recording marks a
+ *    student may not write. Each call there is made only after the
+ *    caller's own RLS-bound client has proved access.
+ *
+ * Never use it anywhere else to read or write application data on behalf
+ * of a request — that would silently defeat every RLS policy.
  *
  * The `server-only` import above makes it a build error to reach this file
  * from a Client Component.

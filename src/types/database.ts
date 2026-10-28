@@ -24,6 +24,16 @@ export type QuestionType =
 export type QuestionStatus = 'draft' | 'published' | 'archived';
 export type DifficultyLevel = 'very_easy' | 'easy' | 'medium' | 'hard' | 'very_hard';
 export type ContentLanguage = 'en' | 'si';
+export type AssessmentKind =
+  | 'practice'
+  | 'class_test'
+  | 'unit_test'
+  | 'term_test'
+  | 'mock_exam'
+  | 'revision'
+  | 'custom';
+export type AssessmentStatus = 'draft' | 'published';
+export type AttemptStatus = 'in_progress' | 'submitted' | 'graded';
 
 export type ProfileRow = {
   id: string;
@@ -198,6 +208,100 @@ export type QuestionTagRow = {
   created_at: string;
 }
 
+export type AssessmentRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  kind: AssessmentKind;
+  status: AssessmentStatus;
+  opens_at: string | null;
+  closes_at: string | null;
+  time_limit_minutes: number | null;
+  /** Null means unlimited. */
+  max_attempts: number | null;
+  shuffle_questions: boolean;
+  shuffle_options: boolean;
+  /** numeric(5,2), returned as a string. */
+  pass_percentage: string | null;
+  /** numeric(4,3): fraction of a question's marks lost for a wrong MCQ / true-false answer. */
+  negative_marking: string;
+  show_results_immediately: boolean;
+  show_correct_answers: boolean;
+  show_explanations: boolean;
+  allow_review: boolean;
+  results_released_at: string | null;
+  created_by: string | null;
+  published_at: string | null;
+  archived_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type AssessmentBatchRow = {
+  assessment_id: string;
+  batch_id: string;
+  created_at: string;
+}
+
+export type AssessmentItemRow = {
+  id: string;
+  assessment_id: string;
+  position: number;
+  kind: 'question' | 'random';
+  question_id: string | null;
+  pick_count: number | null;
+  syllabus_node_id: string | null;
+  difficulties: DifficultyLevel[];
+  question_types: QuestionType[];
+  marks: string | null;
+  created_at: string;
+}
+
+export type AttemptRow = {
+  id: string;
+  assessment_id: string;
+  student_id: string;
+  attempt_number: number;
+  status: AttemptStatus;
+  started_at: string;
+  deadline_at: string | null;
+  submitted_at: string | null;
+  graded_at: string | null;
+  /** Maintained by trigger from attempt_questions. Never written by the app. */
+  score: string;
+  max_score: string;
+  percentage: string | null;
+  pending_manual: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type AttemptQuestionRow = {
+  id: string;
+  attempt_id: string;
+  position: number;
+  question_id: string;
+  /** The exact version served. Past attempts replay against this, never the current version. */
+  question_version_id: string;
+  max_marks: string;
+  marks_awarded: string | null;
+  is_correct: boolean | null;
+  requires_manual: boolean;
+  feedback: string | null;
+  part_results: Json | null;
+  teacher_comment: string | null;
+  marked_by: string | null;
+  marked_at: string | null;
+}
+
+export type AttemptAnswerRow = {
+  attempt_question_id: string;
+  attempt_id: string;
+  response: Json | null;
+  flagged: boolean;
+  updated_at: string;
+}
+
 /**
  * Insert shape: the listed columns are required, everything else is optional
  * because the database supplies a default (id, timestamps, status, …).
@@ -273,11 +377,53 @@ export interface Database {
         Update: Partial<QuestionTagRow>;
         Relationships: [];
       };
+      assessments: {
+        Row: AssessmentRow;
+        Insert: Insert<AssessmentRow, 'title'>;
+        Update: Partial<AssessmentRow>;
+        Relationships: [];
+      };
+      assessment_batches: {
+        Row: AssessmentBatchRow;
+        Insert: Insert<AssessmentBatchRow, 'assessment_id' | 'batch_id'>;
+        Update: Partial<AssessmentBatchRow>;
+        Relationships: [];
+      };
+      assessment_items: {
+        Row: AssessmentItemRow;
+        Insert: Insert<AssessmentItemRow, 'assessment_id' | 'position' | 'kind'>;
+        Update: Partial<AssessmentItemRow>;
+        Relationships: [];
+      };
+      attempts: {
+        Row: AttemptRow;
+        Insert: Insert<AttemptRow, 'assessment_id' | 'student_id' | 'attempt_number'>;
+        Update: Partial<AttemptRow>;
+        Relationships: [];
+      };
+      attempt_questions: {
+        Row: AttemptQuestionRow;
+        Insert: Insert<
+          AttemptQuestionRow,
+          'attempt_id' | 'position' | 'question_id' | 'question_version_id' | 'max_marks'
+        >;
+        Update: Partial<AttemptQuestionRow>;
+        Relationships: [];
+      };
+      attempt_answers: {
+        Row: AttemptAnswerRow;
+        Insert: Insert<AttemptAnswerRow, 'attempt_question_id' | 'attempt_id'>;
+        Update: Partial<AttemptAnswerRow>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       is_teacher: { Args: Record<string, never>; Returns: boolean };
       current_student_id: { Args: Record<string, never>; Returns: string | null };
+      start_attempt: { Args: { p_assessment_id: string }; Returns: string };
+      assessment_question_count: { Args: { p_assessment_id: string }; Returns: number | null };
+      finalize_attempt: { Args: { p_attempt_id: string; p_results: Json }; Returns: AttemptStatus };
     };
     Enums: {
       user_role: UserRole;
@@ -287,6 +433,9 @@ export interface Database {
       question_status: QuestionStatus;
       difficulty_level: DifficultyLevel;
       content_language: ContentLanguage;
+      assessment_kind: AssessmentKind;
+      assessment_status: AssessmentStatus;
+      attempt_status: AttemptStatus;
     };
     CompositeTypes: Record<string, never>;
   };

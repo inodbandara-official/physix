@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  ClipboardList,
   FileQuestion,
   LayoutDashboard,
   Layers,
@@ -19,7 +20,7 @@ export interface NavItem {
 
 /**
  * Navigation lists only routes that actually exist. The remaining sections
- * from the product brief (Assessments, Rankings, Analytics, Past Papers,
+ * from the product brief (Rankings, Analytics, Past Papers,
  * Materials, Formula Vault, Announcements) are added here as each phase
  * lands, so the sidebar never advertises a dead end.
  */
@@ -27,6 +28,7 @@ export const TEACHER_NAV: NavItem[] = [
   { href: '/t/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/t/students', label: 'Students', icon: Users },
   { href: '/t/batches', label: 'Batches', icon: Layers },
+  { href: '/t/assessments', label: 'Assessments', icon: ClipboardList },
   { href: '/t/questions', label: 'Question Bank', icon: FileQuestion },
   { href: '/t/syllabus', label: 'Syllabus', icon: BookOpen },
   { href: '/t/settings', label: 'Settings', icon: Settings },
@@ -34,6 +36,7 @@ export const TEACHER_NAV: NavItem[] = [
 
 export const STUDENT_NAV: NavItem[] = [
   { href: '/s/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/s/assessments', label: 'Assessments', icon: ClipboardList },
   { href: '/s/syllabus', label: 'Syllabus', icon: BookOpen },
   { href: '/s/profile', label: 'Profile', icon: User },
 ];

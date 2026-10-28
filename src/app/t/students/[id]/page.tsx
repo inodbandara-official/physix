@@ -95,7 +95,7 @@ export default async function StudentDetailPage(props: PageProps<'/t/students/[i
           </Card>
 
           <Card>
-            <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
+            <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
               <div className="space-y-1.5">
                 <CardTitle>Performance</CardTitle>
                 <CardDescription>Scores, topic strengths and rank progression.</CardDescription>

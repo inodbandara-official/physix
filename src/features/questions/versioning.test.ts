@@ -77,6 +77,12 @@ describe('shouldCreateNewVersion', () => {
     expect(shouldCreateNewVersion('draft', content(), content({ stem: 'Rewritten' }))).toBe(false);
   });
 
+  it('forks a draft that students have already sat', () => {
+    // A published question moved back to draft is still a record.
+    expect(shouldCreateNewVersion('draft', content(), content({ stem: 'Rewritten' }), true)).toBe(true);
+    expect(shouldCreateNewVersion('draft', content(), content(), true)).toBe(false);
+  });
+
   it('forks a published question when its content changes', () => {
     expect(shouldCreateNewVersion('published', content(), content({ stem: 'Rewritten' }))).toBe(true);
   });

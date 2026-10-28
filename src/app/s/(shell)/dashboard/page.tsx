@@ -8,15 +8,39 @@ import { StatCard } from '@/components/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { StudentAssessmentCard } from '@/features/attempts/components/student-assessment-card';
+import { listStudentAssessments } from '@/features/attempts/queries';
 import { getStudentOverview } from '@/features/dashboard/queries';
+import { t } from '@/features/language/labels';
 import { requireStudent } from '@/lib/auth/session';
-import { formatDate } from '@/lib/format';
+import { formatDate, formatPercent } from '@/lib/format';
 
 export const metadata: Metadata = { title: 'Dashboard' };
 
 export default async function StudentDashboardPage() {
   const session = await requireStudent();
-  const overview = await getStudentOverview(session.student.id);
+  const language = session.profile.language;
+  const [overview, assessments] = await Promise.all([
+    getStudentOverview(session.student.id),
+    listStudentAssessments(session.student.id),
+  ]);
+
+  // Only results the teacher has let the student see count towards these.
+  const bests = assessments
+    .map((assessment) => assessment.best?.percentage ?? null)
+    .filter((value): value is number => value !== null);
+  const average = bests.length ? bests.reduce((sum, value) => sum + value, 0) / bests.length : null;
+  const best = bests.length ? Math.max(...bests) : null;
+  const completed = assessments.filter((assessment) =>
+    assessment.attempts.some((attempt) => attempt.status !== 'in_progress'),
+  ).length;
+  const current = assessments.filter(
+    (assessment) =>
+      assessment.active &&
+      (assessment.openAttemptId !== null ||
+        (assessment.window === 'open' && assessment.canStart && assessment.attempts.length === 0) ||
+        assessment.window === 'upcoming'),
+  );
 
   const firstName = session.student.preferred_name || session.student.full_name.split(' ')[0];
 
@@ -28,27 +52,37 @@ export default async function StudentDashboardPage() {
       />
 
       <section aria-label="Your performance" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Average score" value="—" pending icon={ClipboardList} />
-        <StatCard label="Best score" value="—" pending icon={Trophy} />
-        <StatCard label="Questions solved" value="—" pending icon={BookOpen} />
+        <StatCard label={t('averageScore', language)} value={formatPercent(average)} icon={ClipboardList} />
+        <StatCard label={t('bestScore', language)} value={formatPercent(best)} icon={Trophy} />
+        <StatCard label={t('completed', language)} value={completed} icon={BookOpen} />
         <StatCard label="Rank" value="—" pending icon={Trophy} />
       </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
+          <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
             <div className="space-y-1.5">
-              <CardTitle>Assigned work</CardTitle>
-              <CardDescription>Quizzes, tests and practice sets your teacher has set.</CardDescription>
+              <CardTitle>{t('assignedWork', language)}</CardTitle>
+              <CardDescription>{t('assignedWorkIntro', language)}</CardDescription>
             </div>
-            <Badge variant="secondary">Phase 3</Badge>
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/s/assessments">{t('seeAll', language)}</Link>
+            </Button>
           </CardHeader>
           <CardContent>
-            <EmptyState
-              icon={ClipboardList}
-              title="Nothing assigned yet"
-              description="When your teacher publishes a quiz or test, it appears here with its deadline."
-            />
+            {current.length === 0 ? (
+              <EmptyState
+                icon={ClipboardList}
+                title={t('nothingAssigned', language)}
+                description={t('nothingAssignedHint', language)}
+              />
+            ) : (
+              <ul className="space-y-3" lang={language}>
+                {current.slice(0, 5).map((assessment) => (
+                  <StudentAssessmentCard key={assessment.id} assessment={assessment} language={language} />
+                ))}
+              </ul>
+            )}
           </CardContent>
         </Card>
 

@@ -247,7 +247,7 @@ export default async function QuestionDetailPage(props: PageProps<'/t/questions/
           ) : null}
 
           <Card>
-            <CardHeader className="flex-row items-center justify-between gap-3 space-y-0">
+            <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
               <div className="space-y-1.5">
                 <CardTitle>Question performance</CardTitle>
                 <CardDescription>How students actually do on this question.</CardDescription>

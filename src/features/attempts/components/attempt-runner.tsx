@@ -526,7 +526,7 @@ export function AttemptRunner(props: RunnerProps) {
                 await flush();
                 // Leaving on purpose, answers saved: no browser prompt.
                 finishedRef.current = true;
-                router.push(`/s/assessments/${props.assessmentId}`);
+                router.push(props.exitHref);
               }}
             >
               {t('leave', language)}

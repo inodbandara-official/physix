@@ -25,6 +25,7 @@ import { buildSheetQuestion, type SheetQuestion } from './sheet';
 
 export interface AttemptSummary {
   id: string;
+  practiceLabel: string | null;
   attemptNumber: number;
   status: AttemptStatus;
   startedAt: string;
@@ -39,6 +40,7 @@ export interface AttemptSummary {
 function toAttemptSummary(row: AttemptRow): AttemptSummary {
   return {
     id: row.id,
+    practiceLabel: row.practice_label,
     attemptNumber: row.attempt_number,
     status: row.status,
     startedAt: row.started_at,
@@ -154,9 +156,10 @@ export async function listStudentAssessments(studentId: string): Promise<Student
   }
 
   const now = new Date();
-  return (assessments ?? []).map((assessment) =>
-    toStudentAssessment(assessment, byAssessment.get(assessment.id) ?? [], now),
-  );
+  return (assessments ?? [])
+    // Past-paper practice has its own page.
+    .filter((assessment) => !assessment.past_paper_bank)
+    .map((assessment) => toStudentAssessment(assessment, byAssessment.get(assessment.id) ?? [], now));
 }
 
 export async function getStudentAssessment(
@@ -195,6 +198,8 @@ export interface RunnerData {
   attemptNumber: number;
   assessmentId: string;
   title: string;
+  /** Past-paper practice returns to the past-papers page, not an assessment page. */
+  pastPaper: boolean;
   deadlineAt: string | null;
   serverNow: string;
   negativeMarking: boolean;
@@ -224,7 +229,7 @@ export async function getRunnerData(attemptId: string, language: ContentLanguage
   const [{ data: assessment }, { data: rows }, { data: answers }] = await Promise.all([
     supabase
       .from('assessments')
-      .select('id, title, shuffle_options, negative_marking')
+      .select('id, title, shuffle_options, negative_marking, past_paper_bank')
       .eq('id', attempt.assessment_id)
       .maybeSingle(),
     supabase.from('attempt_questions').select('id, position, question_version_id, max_marks').eq('attempt_id', attemptId).order('position'),
@@ -264,7 +269,8 @@ export async function getRunnerData(attemptId: string, language: ContentLanguage
       attemptId: attempt.id,
       attemptNumber: attempt.attempt_number,
       assessmentId: assessment.id,
-      title: assessment.title,
+      title: assessment.past_paper_bank ? (attempt.practice_label ?? assessment.title) : assessment.title,
+      pastPaper: assessment.past_paper_bank,
       deadlineAt: attempt.deadline_at,
       serverNow: new Date().toISOString(),
       negativeMarking: Number(assessment.negative_marking) > 0,
@@ -319,6 +325,7 @@ export interface AttemptResult {
     showExplanations: boolean;
     allowReview: boolean;
     closesAt: string | null;
+    pastPaper: boolean;
   };
   /** Marks may be shown. */
   visible: boolean;
@@ -382,6 +389,7 @@ export function toResultAssessment(assessment: AssessmentRow): AttemptResult['as
     showExplanations: assessment.show_explanations,
     allowReview: assessment.allow_review,
     closesAt: assessment.closes_at,
+    pastPaper: assessment.past_paper_bank,
   };
 }
 

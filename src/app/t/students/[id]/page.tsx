@@ -8,12 +8,13 @@ import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getStudentReportForTeacher } from '@/features/analytics/queries';
 import { StatusBadge } from '@/features/students/components/status-badge';
 import { StudentCredentialsCard } from '@/features/students/components/student-credentials-card';
 import { StudentNotes } from '@/features/students/components/student-notes';
 import { getStudent } from '@/features/students/queries';
 import { requireTeacher } from '@/lib/auth/session';
-import { formatDate } from '@/lib/format';
+import { formatDate, formatPercent } from '@/lib/format';
 
 export async function generateMetadata(props: PageProps<'/t/students/[id]'>): Promise<Metadata> {
   const { id } = await props.params;
@@ -25,7 +26,7 @@ export default async function StudentDetailPage(props: PageProps<'/t/students/[i
   await requireTeacher();
   const { id } = await props.params;
 
-  const student = await getStudent(id);
+  const [student, report] = await Promise.all([getStudent(id), getStudentReportForTeacher(id)]);
   if (!student) notFound();
 
   const details: { label: string; value: string }[] = [
@@ -98,15 +99,47 @@ export default async function StudentDetailPage(props: PageProps<'/t/students/[i
             <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
               <div className="space-y-1.5">
                 <CardTitle>Performance</CardTitle>
-                <CardDescription>Scores, topic strengths and rank progression.</CardDescription>
+                <CardDescription>Every finished attempt, including results held back from the student.</CardDescription>
               </div>
-              <Badge variant="secondary">Phase 4</Badge>
+              <Button asChild variant="ghost" size="sm">
+                <Link href={`/t/students/${student.id}/progress`}>Full progress</Link>
+              </Button>
             </CardHeader>
             <CardContent>
-              <EmptyState
-                title="Nothing to analyse yet"
-                description="Once this student has attempted assessments, their averages, weak topics and rank appear here."
-              />
+              {report.attemptsCount === 0 ? (
+                <EmptyState
+                  title="Nothing to analyse yet"
+                  description="Once this student has finished a test or past-paper practice, their averages and weak topics appear here."
+                />
+              ) : (
+                <div className="space-y-4">
+                  <dl className="grid grid-cols-3 gap-4">
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Average score</dt>
+                      <dd className="text-xl font-semibold tabular-nums">{formatPercent(report.averagePercentage)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Accuracy</dt>
+                      <dd className="text-xl font-semibold tabular-nums">{formatPercent(report.overall.accuracy)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Finished</dt>
+                      <dd className="text-xl font-semibold tabular-nums">{report.attemptsCount}</dd>
+                    </div>
+                  </dl>
+                  {report.weak.length > 0 ? (
+                    <p className="text-sm">
+                      <span className="font-medium">Needs attention:</span>{' '}
+                      {report.weak
+                        .slice(0, 3)
+                        .map((topic) => `${topic.name} (${formatPercent(topic.accuracy)}, ${topic.questions} q)`)
+                        .join(' · ')}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No weak topic stands out on enough evidence.</p>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

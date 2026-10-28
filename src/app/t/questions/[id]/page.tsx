@@ -17,6 +17,8 @@ import {
   TranslationBadge,
 } from '@/features/questions/components/question-badges';
 import { QuestionPreview } from '@/features/questions/components/question-preview';
+import { FLAG_LABELS, MIN_ATTEMPTS_FOR_FLAGS } from '@/features/analytics/compute';
+import { getQuestionPerformance } from '@/features/analytics/queries';
 import { isReviewed } from '@/features/questions/translation';
 import {
   collectFigurePaths,
@@ -27,7 +29,7 @@ import {
 import { isAutoMarked } from '@/features/questions/types';
 import { flattenSyllabus, getSyllabusTree } from '@/features/syllabus/queries';
 import { requireTeacher } from '@/lib/auth/session';
-import { formatDateTime } from '@/lib/format';
+import { formatDateTime, formatPercent } from '@/lib/format';
 
 export async function generateMetadata(props: PageProps<'/t/questions/[id]'>): Promise<Metadata> {
   const { id } = await props.params;
@@ -53,9 +55,10 @@ export default async function QuestionDetailPage(props: PageProps<'/t/questions/
     requestedId && requestedId !== current.id ? ((await getQuestionVersion(requestedId)) ?? current) : current;
   const isHistorical = viewing.id !== current.id;
 
-  const [figureUrls, tree] = await Promise.all([
+  const [figureUrls, tree, performance] = await Promise.all([
     signFigureUrls(collectFigurePaths(viewing)),
     getSyllabusTree(),
+    getQuestionPerformance(question.id),
   ]);
 
   const hasSinhala = isReviewed(current.translations, 'si');
@@ -247,19 +250,56 @@ export default async function QuestionDetailPage(props: PageProps<'/t/questions/
           ) : null}
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-              <div className="space-y-1.5">
-                <CardTitle>Question performance</CardTitle>
-                <CardDescription>How students actually do on this question.</CardDescription>
-              </div>
-              <Badge variant="secondary">Phase 4</Badge>
+            <CardHeader>
+              <CardTitle>Question performance</CardTitle>
+              <CardDescription>Across every version students have sat.</CardDescription>
             </CardHeader>
             <CardContent>
-              <EmptyState
-                title="No attempts yet"
-                description="Once this question has been answered, its attempt count, success rate and average time appear here — the data that tells you whether the question itself is working."
-                className="py-8"
-              />
+              {!performance ? (
+                <EmptyState
+                  title="No attempts yet"
+                  description="Once this question has been answered, its success rate and how often it is skipped appear here — the data that tells you whether the question itself is working."
+                  className="py-8"
+                />
+              ) : (
+                <div className="space-y-4">
+                  <dl className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Attempts</dt>
+                      <dd className="text-xl font-semibold tabular-nums">{performance.attempts}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Fully correct</dt>
+                      <dd className="text-xl font-semibold tabular-nums">{formatPercent(performance.correctRate)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Average marks</dt>
+                      <dd className="text-xl font-semibold tabular-nums">
+                        {performance.averageMarks ?? '—'} / {performance.maxMarks}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Skipped</dt>
+                      <dd className="text-xl font-semibold tabular-nums">{formatPercent(performance.skipRate)}</dd>
+                    </div>
+                  </dl>
+                  {performance.flags.length > 0 ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {performance.flags.map((flag) => (
+                        <Badge key={flag} variant="outline" className="font-normal">
+                          {FLAG_LABELS[flag]}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : performance.attempts < MIN_ATTEMPTS_FOR_FLAGS ? (
+                    <p className="text-xs text-muted-foreground">
+                      Too few attempts to judge the question yet — flags appear after {MIN_ATTEMPTS_FOR_FLAGS}.
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Nothing unusual about how students answer it.</p>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

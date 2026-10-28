@@ -42,15 +42,17 @@ export default async function StudentResultPage(props: PageProps<'/s/results/[id
   return (
     <div className="space-y-6" lang={language}>
       <Button asChild variant="ghost" size="sm" className="-ml-2 w-fit">
-        <Link href={`/s/assessments/${assessment.id}`}>
+        <Link href={assessment.pastPaper ? '/s/past-papers' : `/s/assessments/${assessment.id}`}>
           <ArrowLeft className="size-4" aria-hidden />
-          {assessment.title}
+          {assessment.pastPaper ? t('pastPapers', language) : assessment.title}
         </Link>
       </Button>
 
       <header className="space-y-1 border-b pb-5">
         <p className="text-sm text-muted-foreground">
-          {kindLabel(assessment.kind, language)} · {tf('attemptN', language, { n: attempt.attemptNumber })}
+          {assessment.pastPaper
+            ? (attempt.practiceLabel ?? t('pastPapers', language))
+            : `${kindLabel(assessment.kind, language)} · ${tf('attemptN', language, { n: attempt.attemptNumber })}`}
         </p>
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t('result', language)}</h1>
       </header>

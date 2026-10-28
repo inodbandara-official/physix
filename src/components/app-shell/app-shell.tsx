@@ -5,9 +5,12 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { LanguageToggle } from '@/features/language/components/language-toggle';
 import type { AppSettingsRow, ContentLanguage, UserRole } from '@/types/database';
 
+import { cn } from '@/lib/utils';
+
 import { BrandMark } from './brand-mark';
 import { MobileNav } from './mobile-nav';
 import { SidebarNav } from './sidebar-nav';
+import { StudentTabBar } from './student-tab-bar';
 import { UserMenu } from './user-menu';
 
 interface AppShellProps {
@@ -82,10 +85,15 @@ export function AppShell({
               globals.css treat the text correctly. */}
           <main
             lang={role === 'student' ? language : undefined}
-            className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8"
+            className={cn(
+              'mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8',
+              // Room for the phone tab bar, so it never covers the last row.
+              role === 'student' && 'pb-28 lg:pb-8',
+            )}
           >
             <div className="space-y-6">{children}</div>
           </main>
+          {role === 'student' ? <StudentTabBar language={language} /> : null}
         </div>
       </div>
     </div>

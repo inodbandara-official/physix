@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { addQuestionsAction } from '@/features/assessments/actions';
 import { QuestionPicker } from '@/features/assessments/components/question-picker';
 import { getAssessmentDetail, listPickableQuestions } from '@/features/assessments/queries';
 import { difficultySchema, questionTypeSchema } from '@/features/questions/schema';
@@ -122,7 +123,11 @@ export default async function AddQuestionsPage(props: PageProps<'/t/assessments/
       ) : null}
 
       <QuestionPicker
-        assessmentId={id}
+        targetField="assessment_id"
+        targetId={id}
+        action={addQuestionsAction}
+        doneHref={`/t/assessments/${id}`}
+        targetNoun="assessment"
         rows={rows.map((row) => ({
           id: row.id,
           code: row.question_code,

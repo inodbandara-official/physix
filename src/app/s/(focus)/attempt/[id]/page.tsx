@@ -49,6 +49,7 @@ export default async function AttemptPage(props: PageProps<'/s/attempt/[id]'>) {
       attemptId={data.attemptId}
       assessmentId={data.assessmentId}
       title={data.title}
+      exitHref={data.pastPaper ? '/s/past-papers' : `/s/assessments/${data.assessmentId}`}
       attemptNumber={data.attemptNumber}
       deadlineAt={data.deadlineAt}
       serverNow={data.serverNow}

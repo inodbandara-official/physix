@@ -269,3 +269,49 @@
 :lang(si) :is(p, li, dd, dt, label, legend, figcaption, h1, h2, h3, blockquote, textarea) {
   line-height: 1.75;
 }
+
+/* =====================================================================
+   Data visualisation
+   =====================================================================
+   One blue for single-series charts and a one-hue blue ramp for magnitude
+   (heatmap cells), from the validated reference palette. Dark mode gets
+   its own steps rather than an automatic inversion: low values recede
+   toward the surface in both themes, so "not much" never looks loudest.
+   ===================================================================== */
+:root {
+  --viz-series: #2a78d6;
+  --viz-grid: oklch(0.92 0 0);
+  --viz-axis: oklch(0.5 0 0);
+  --viz-heat-0: #eef4fd;
+  --viz-heat-1: #cde2fb;
+  --viz-heat-2: #9ec5f4;
+  --viz-heat-3: #6da7ec;
+  --viz-heat-4: #3987e5;
+  --viz-heat-5: #256abf;
+  --viz-heat-6: #184f95;
+}
+
+.dark {
+  --viz-series: #3987e5;
+  --viz-grid: oklch(0.3 0 0);
+  --viz-axis: oklch(0.7 0 0);
+  --viz-heat-0: #1d2633;
+  --viz-heat-1: #13325a;
+  --viz-heat-2: #184f95;
+  --viz-heat-3: #1c5cab;
+  --viz-heat-4: #2a78d6;
+  --viz-heat-5: #5598e7;
+  --viz-heat-6: #9ec5f4;
+}
+
+/* Heat cells: ink follows the cell, so the number stays readable on every step. */
+[data-heat] { background: var(--heat-bg); color: var(--foreground); }
+[data-heat='0'] { --heat-bg: var(--viz-heat-0); }
+[data-heat='1'] { --heat-bg: var(--viz-heat-1); }
+[data-heat='2'] { --heat-bg: var(--viz-heat-2); }
+[data-heat='3'] { --heat-bg: var(--viz-heat-3); }
+[data-heat='4'] { --heat-bg: var(--viz-heat-4); color: #fff; }
+[data-heat='5'] { --heat-bg: var(--viz-heat-5); color: #fff; }
+[data-heat='6'] { --heat-bg: var(--viz-heat-6); color: #fff; }
+.dark [data-heat='4'] { color: var(--foreground); }
+.dark [data-heat='5'], .dark [data-heat='6'] { color: #0b0b0b; }

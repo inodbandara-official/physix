@@ -192,6 +192,133 @@ const STRINGS = {
   averageScore: { en: 'Average score', si: 'සාමාන්‍ය ලකුණු' },
   completed: { en: 'Completed', si: 'සම්පූර්ණ කළ' },
   seeAll: { en: 'See all', si: 'සියල්ල බලන්න' },
+
+  // --- Navigation (phone tab bar) ------------------------------------------
+  navHome: { en: 'Home', si: 'මුල් පිටුව' },
+  navTests: { en: 'Tests', si: 'පරීක්ෂණ' },
+  navPapers: { en: 'Papers', si: 'ප්‍රශ්න පත්‍ර' },
+  navProgress: { en: 'Progress', si: 'ප්‍රගතිය' },
+  navRank: { en: 'Rank', si: 'ස්ථානය' },
+
+  // --- Past papers -------------------------------------------------------
+  pastPapers: { en: 'Past papers', si: 'පසුගිය ප්‍රශ්න පත්‍ර' },
+  pastPapersIntro: {
+    en: 'Practise real A/L papers — a whole paper, one section, or a topic across the years.',
+    si: 'සැබෑ උසස් පෙළ ප්‍රශ්න පත්‍ර පුහුණු වන්න — සම්පූර්ණ පත්‍රයක්, එක් කොටසක්, හෝ වසර කිහිපයක එක් මාතෘකාවක්.',
+  },
+  practiceUntimed: {
+    en: 'Practice is untimed and marked straight away, with worked solutions.',
+    si: 'පුහුණුවට කාල සීමාවක් නැති අතර, විසඳුම් සමඟ වහාම ලකුණු කෙරේ.',
+  },
+  practiseWhole: { en: 'Practise the whole paper', si: 'සම්පූර්ණ පත්‍රය පුහුණු වන්න' },
+  sectionN: { en: 'Section {s}', si: 'කොටස {s}' },
+  practiseByTopic: { en: 'Practise by topic and year', si: 'මාතෘකාව සහ වර්ෂය අනුව පුහුණු වන්න' },
+  topic: { en: 'Topic', si: 'මාතෘකාව' },
+  allTopics: { en: 'All topics', si: 'සියලු මාතෘකා' },
+  years: { en: 'Years', si: 'වර්ෂ' },
+  allYears: { en: 'All years', si: 'සියලු වර්ෂ' },
+  howMany: { en: 'Questions', si: 'ප්‍රශ්න ගණන' },
+  startPractice: { en: 'Start practice', si: 'පුහුණුව ආරම්භ කරන්න' },
+  questionsCount: { en: '{n} questions', si: 'ප්‍රශ්න {n}' },
+  noPapers: { en: 'No past papers yet', si: 'තවම පසුගිය ප්‍රශ්න පත්‍ර නැත' },
+  noPapersHint: {
+    en: 'When your teacher adds past papers, you can practise them here.',
+    si: 'ඔබේ ගුරුවරයා පසුගිය ප්‍රශ්න පත්‍ර එකතු කළ විට, ඒවා මෙහි පුහුණු විය හැක.',
+  },
+  recentPractice: { en: 'Your recent practice', si: 'ඔබේ මෑත පුහුණුව' },
+  previousHandedIn: {
+    en: 'Your previous practice was handed in and marked.',
+    si: 'ඔබේ පෙර පුහුණුව ඉදිරිපත් කර ලකුණු කරන ලදී.',
+  },
+  topicPractice: { en: 'Topic practice', si: 'මාතෘකා පුහුණුව' },
+
+  // --- Progress ------------------------------------------------------------
+  progress: { en: 'Progress', si: 'ප්‍රගතිය' },
+  progressIntro: {
+    en: 'How you are doing, topic by topic, and how that is changing.',
+    si: 'මාතෘකාවෙන් මාතෘකාවට ඔබ කරන ආකාරය, සහ එය වෙනස් වන ආකාරය.',
+  },
+  overallAccuracy: { en: 'Overall accuracy', si: 'සමස්ත නිරවද්‍යතාව' },
+  sinceFirstMonth: { en: 'Change since your first month', si: 'පළමු මාසයේ සිට වෙනස' },
+  points: { en: '{n} points', si: 'ලකුණු {n}' },
+  byUnit: { en: 'By unit', si: 'ඒකක අනුව' },
+  needsAttention: { en: 'Needs attention', si: 'අවධානය අවශ්‍යයි' },
+  needsAttentionNone: {
+    en: 'Nothing stands out yet. A topic appears here once you have answered at least 5 questions in it and are scoring under 60%.',
+    si: 'තවම කිසිවක් කැපී පෙනෙන්නේ නැත. මාතෘකාවක ප්‍රශ්න අවම වශයෙන් 5කට පිළිතුරු දී 60%ට අඩු ලකුණු ලැබුවහොත් එය මෙහි දිස්වේ.',
+  },
+  basedOn: { en: 'Based on {n} questions', si: 'ප්‍රශ්න {n}ක් මත' },
+  byDifficulty: { en: 'By difficulty', si: 'දුෂ්කරතාව අනුව' },
+  byKind: { en: 'By kind of question', si: 'ප්‍රශ්න වර්ගය අනුව' },
+  kindNumerical: { en: 'Numerical', si: 'සංඛ්‍යාත්මක' },
+  kindConceptual: { en: 'Conceptual', si: 'සංකල්පීය' },
+  kindWritten: { en: 'Written', si: 'ලිඛිත' },
+  levelVeryEasy: { en: 'Very easy', si: 'ඉතා පහසු' },
+  levelEasy: { en: 'Easy', si: 'පහසු' },
+  levelMedium: { en: 'Medium', si: 'මධ්‍යම' },
+  levelHard: { en: 'Hard', si: 'අසීරු' },
+  levelVeryHard: { en: 'Very hard', si: 'ඉතා අසීරු' },
+  overTime: { en: 'Month by month', si: 'මාසයෙන් මාසයට' },
+  monthlyAverage: { en: 'Average score', si: 'සාමාන්‍ය ලකුණු' },
+  needTwoMonths: {
+    en: 'A chart appears once you have results in two different months.',
+    si: 'වෙනස් මාස දෙකක ප්‍රතිඵල ලැබුණු පසු ප්‍රස්ථාරයක් දිස්වේ.',
+  },
+  personalBests: { en: 'Personal bests', si: 'පුද්ගලික වාර්තා' },
+  highestScore: { en: 'Highest score', si: 'ඉහළම ලකුණු' },
+  questionsAnswered: { en: 'Questions answered', si: 'පිළිතුරු දුන් ප්‍රශ්න' },
+  fullyCorrect: { en: 'Fully correct', si: 'සම්පූර්ණයෙන් නිවැරදි' },
+  longestStreak: { en: 'Longest streak', si: 'දිගම අඛණ්ඩ දින' },
+  daysN: { en: '{n} days', si: 'දින {n}' },
+  noResultsYet: { en: 'No results yet', si: 'තවම ප්‍රතිඵල නැත' },
+  noResultsHint: {
+    en: 'Finish a test or a past paper and your progress appears here.',
+    si: 'පරීක්ෂණයක් හෝ පසුගිය ප්‍රශ්න පත්‍රයක් අවසන් කළ පසු ඔබේ ප්‍රගතිය මෙහි දිස්වේ.',
+  },
+  recentResults: { en: 'Recent results', si: 'මෑත ප්‍රතිඵල' },
+
+  // --- Ranking -------------------------------------------------------------
+  ranking: { en: 'Ranking', si: 'ශ්‍රේණිගත කිරීම' },
+  rankingIntro: { en: 'Where you stand in your class.', si: 'ඔබේ පන්තියේ ඔබ සිටින තැන.' },
+  yourPosition: { en: 'Your position', si: 'ඔබේ ස්ථානය' },
+  ofN: { en: 'of {n}', si: '{n}න්' },
+  behindNext: {
+    en: 'You are {gap} points behind #{rank}.',
+    si: 'ඔබ #{rank} ස්ථානයට වඩා ලකුණු {gap}කින් පසුපසින් සිටී.',
+  },
+  topOfClass: { en: 'You are at the top of your class.', si: 'ඔබ පන්තියේ ඉහළින්ම සිටී.' },
+  notRankedYet: { en: 'Not ranked yet', si: 'තවම ශ්‍රේණිගත කර නැත' },
+  notRankedHint: {
+    en: 'You appear once a test that counts has its results released.',
+    si: 'ගණන් ගන්නා පරීක්ෂණයක ප්‍රතිඵල නිකුත් වූ පසු ඔබ මෙහි දිස්වේ.',
+  },
+  you: { en: 'You', si: 'ඔබ' },
+  classmate: { en: 'Classmate', si: 'පන්තියේ සිසුවෙක්' },
+  rankPrivate: {
+    en: 'Your teacher shows each student only their own position.',
+    si: 'ඔබේ ගුරුවරයා එක් එක් සිසුවාට තමන්ගේ ස්ථානය පමණක් පෙන්වයි.',
+  },
+  howWorkedOut: { en: 'How this is worked out', si: 'මෙය ගණනය කරන ආකාරය' },
+  rank: { en: 'Rank', si: 'ස්ථානය' },
+  noClassYet: {
+    en: 'You are not in a class yet, so there is no ranking to show.',
+    si: 'ඔබ තවම පන්තියකට ඇතුළත් කර නැති නිසා, පෙන්වීමට ශ්‍රේණිගත කිරීමක් නැත.',
+  },
+  basisAverage: {
+    en: 'Average of your best percentage in each test that counts.',
+    si: 'ගණන් ගන්නා එක් එක් පරීක්ෂණයේ ඔබේ හොඳම ප්‍රතිශතයේ සාමාන්‍යය.',
+  },
+  basisTotal: { en: 'Total marks across the tests that count.', si: 'ගණන් ගන්නා පරීක්ෂණවල මුළු ලකුණු.' },
+  basisWeighted: {
+    en: 'Average for each type of test, combined using your teacher’s weights.',
+    si: 'එක් එක් පරීක්ෂණ වර්ගයේ සාමාන්‍යය, ඔබේ ගුරුවරයාගේ බර අනුව එකතු කර ඇත.',
+  },
+  basisRecent: { en: 'Average of the {n} most recent tests.', si: 'මෑත පරීක්ෂණ {n}හි සාමාන්‍යය.' },
+  missedZero: {
+    en: 'A closed test you did not sit counts as 0%.',
+    si: 'ඔබ සහභාගී නොවූ, අවසන් වූ පරීක්ෂණයක් 0% ලෙස ගණන් ගැනේ.',
+  },
+  missedLeftOut: { en: 'Tests you did not sit are left out.', si: 'ඔබ සහභාගී නොවූ පරීක්ෂණ ගණන් නොගනී.' },
 } satisfies Record<string, Record<ContentLanguage, string>>;
 
 export type LabelKey = keyof typeof STRINGS;

@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AssessmentLifecycle } from '@/features/assessments/components/assessment-lifecycle';
+import { AssessmentAnalyticsView } from '@/features/analytics/components/assessment-analytics-view';
+import { getAssessmentAnalytics } from '@/features/analytics/queries';
 import { getAssessmentResults } from '@/features/assessments/queries';
 import { ATTEMPT_STATUS_LABELS } from '@/features/assessments/types';
 import { resultsVisible } from '@/features/attempts/scoring';
@@ -28,7 +30,27 @@ export default async function AssessmentResultsPage(props: PageProps<'/t/assessm
   const { data: assessment } = await supabase.from('assessments').select('*').eq('id', id).maybeSingle();
   if (!assessment) notFound();
 
-  const { attempts, stats } = await getAssessmentResults(assessment);
+  const [{ attempts, stats }, analytics] = await Promise.all([
+    getAssessmentResults(assessment),
+    getAssessmentAnalytics(assessment.id),
+  ]);
+
+  // Assessment ranking: each student's best finished attempt, ties sharing a rank.
+  const best = new Map<string, (typeof attempts)[number]>();
+  for (const attempt of attempts) {
+    if (attempt.status !== 'graded' || attempt.percentage === null) continue;
+    const current = best.get(attempt.student_id);
+    if (!current || Number(attempt.percentage) > Number(current.percentage)) best.set(attempt.student_id, attempt);
+  }
+  const ordered = [...best.values()].sort((a, b) => Number(b.percentage) - Number(a.percentage));
+  const rankOf = new Map<string, number>();
+  ordered.forEach((attempt, index) => {
+    const previous = ordered[index - 1];
+    rankOf.set(
+      attempt.id,
+      previous && Number(previous.percentage) === Number(attempt.percentage) ? rankOf.get(previous.id)! : index + 1,
+    );
+  });
   const held = !resultsVisible(assessment);
 
   return (
@@ -77,6 +99,8 @@ export default async function AssessmentResultsPage(props: PageProps<'/t/assessm
         />
       </section>
 
+      <AssessmentAnalyticsView analytics={analytics} />
+
       {attempts.length === 0 ? (
         <EmptyState
           title="No attempts yet"
@@ -91,6 +115,7 @@ export default async function AssessmentResultsPage(props: PageProps<'/t/assessm
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-14">Rank</TableHead>
                 <TableHead>Student</TableHead>
                 <TableHead className="text-right">Attempt</TableHead>
                 <TableHead>Status</TableHead>
@@ -103,6 +128,9 @@ export default async function AssessmentResultsPage(props: PageProps<'/t/assessm
             <TableBody>
               {attempts.map((attempt) => (
                 <TableRow key={attempt.id}>
+                  <TableCell className="font-semibold tabular-nums">
+                    {rankOf.has(attempt.id) ? `#${rankOf.get(attempt.id)}` : ''}
+                  </TableCell>
                   <TableCell>
                     <Link href={`/t/attempts/${attempt.id}`} className="font-medium hover:underline">
                       {attempt.student?.full_name ?? 'Unknown student'}

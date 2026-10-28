@@ -35,7 +35,8 @@ export interface AssessmentListItem extends AssessmentRow {
 export async function listAssessments(view: 'active' | 'archived' = 'active'): Promise<AssessmentListItem[]> {
   const supabase = await createSupabaseServerClient();
 
-  let query = supabase.from('assessments').select('*');
+  // The past-paper bank is managed from Past papers, not listed as a test.
+  let query = supabase.from('assessments').select('*').eq('past_paper_bank', false);
   query = view === 'active' ? query.is('archived_at', null) : query.not('archived_at', 'is', null);
 
   const { data: assessments, error } = await query.order('created_at', { ascending: false });
@@ -297,6 +298,7 @@ export interface PickerFilters {
   unit?: string;
   type?: QuestionType;
   difficulty?: DifficultyLevel;
+  year?: number;
 }
 
 export async function listPickableQuestions(filters: PickerFilters, excludeIds: string[]) {
@@ -315,6 +317,7 @@ export async function listPickableQuestions(filters: PickerFilters, excludeIds: 
   if (filters.unit) query = query.eq('current_unit_id', filters.unit);
   if (filters.type) query = query.eq('current_type', filters.type);
   if (filters.difficulty) query = query.eq('current_difficulty', filters.difficulty);
+  if (filters.year) query = query.eq('current_year', filters.year);
   if (filters.q) {
     const term = `%${filters.q.replace(/[%_,()]/g, '')}%`;
     query = query.or(`current_stem.ilike.${term},current_title.ilike.${term},question_code.ilike.${term}`);
@@ -451,6 +454,7 @@ export async function getTeacherAttempt(attemptId: string): Promise<TeacherAttem
   return {
     attempt: {
       id: attempt.id,
+      practiceLabel: attempt.practice_label,
       attemptNumber: attempt.attempt_number,
       status: attempt.status,
       startedAt: attempt.started_at,

@@ -45,6 +45,8 @@ export interface RunnerProps {
   attemptId: string;
   assessmentId: string;
   title: string;
+  /** Where "Leave" goes. */
+  exitHref: string;
   attemptNumber: number;
   deadlineAt: string | null;
   serverNow: string;

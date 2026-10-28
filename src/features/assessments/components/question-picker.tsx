@@ -11,10 +11,9 @@ import { mathToPlainText } from '@/components/math-text';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DifficultyBadge, MarksBadge, QuestionTypeBadge } from '@/features/questions/components/question-badges';
+import type { ActionState } from '@/lib/action';
 import { useActionForm } from '@/lib/use-action-form';
 import type { DifficultyLevel, QuestionType } from '@/types/database';
-
-import { addQuestionsAction } from '../actions';
 
 export interface PickerRow {
   id: string;
@@ -28,11 +27,24 @@ export interface PickerRow {
   hasSinhala: boolean;
 }
 
-export function QuestionPicker({ assessmentId, rows }: { assessmentId: string; rows: PickerRow[] }) {
+interface QuestionPickerProps {
+  rows: PickerRow[];
+  /** Hidden field naming what the questions are added to, e.g. assessment_id. */
+  targetField: string;
+  targetId: string;
+  action: (previous: ActionState<{ added: number }>, formData: FormData) => Promise<ActionState<{ added: number }>>;
+  /** Where to go once added. */
+  doneHref: string;
+  /** "assessment", "paper" — finishes the button label. */
+  targetNoun: string;
+}
+
+/** Choose published questions from the bank and add them to an assessment or a past paper. */
+export function QuestionPicker({ rows, targetField, targetId, action, doneHref, targetNoun }: QuestionPickerProps) {
   const router = useRouter();
   const [selected, setSelected] = useState<string[]>([]);
-  const { state, formAction } = useActionForm(addQuestionsAction, {
-    onSuccess: () => router.push(`/t/assessments/${assessmentId}`),
+  const { state, formAction } = useActionForm(action, {
+    onSuccess: () => router.push(doneHref),
   });
 
   if (rows.length === 0) {
@@ -40,7 +52,7 @@ export function QuestionPicker({ assessmentId, rows }: { assessmentId: string; r
       <EmptyState
         icon={FileQuestion}
         title="No published questions match"
-        description="Only published questions can go into an assessment. Try other filters, or publish questions from the bank."
+        description={`Only published questions can be added to a ${targetNoun}. Try other filters, or publish questions from the bank.`}
       />
     );
   }
@@ -51,7 +63,7 @@ export function QuestionPicker({ assessmentId, rows }: { assessmentId: string; r
   return (
     <form action={formAction} className="space-y-3">
       <FormAlert state={state} />
-      <input type="hidden" name="assessment_id" value={assessmentId} />
+      <input type="hidden" name={targetField} value={targetId} />
       {selected.map((id) => (
         <input key={id} type="hidden" name="question_ids[]" value={id} />
       ))}
@@ -69,7 +81,7 @@ export function QuestionPicker({ assessmentId, rows }: { assessmentId: string; r
           {selected.length} selected{selected.length > 0 ? ` · ${Math.round(marks * 100) / 100} marks` : ''}
         </span>
         <SubmitButton className="ml-auto" disabled={selected.length === 0} pendingLabel="Adding…">
-          Add {selected.length > 0 ? selected.length : ''} to assessment
+          Add {selected.length > 0 ? selected.length : ''} to {targetNoun}
         </SubmitButton>
       </div>
 

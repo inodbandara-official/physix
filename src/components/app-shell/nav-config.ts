@@ -1,10 +1,14 @@
 import {
+  BarChart3,
   BookOpen,
   ClipboardList,
   FileQuestion,
+  FileStack,
   LayoutDashboard,
   Layers,
   Settings,
+  TrendingUp,
+  Trophy,
   User,
   Users,
   type LucideIcon,
@@ -20,8 +24,8 @@ export interface NavItem {
 
 /**
  * Navigation lists only routes that actually exist. The remaining sections
- * from the product brief (Rankings, Analytics, Past Papers,
- * Materials, Formula Vault, Announcements) are added here as each phase
+ * from the product brief (Materials, Formula Vault, Announcements) are
+ * added here as each phase
  * lands, so the sidebar never advertises a dead end.
  */
 export const TEACHER_NAV: NavItem[] = [
@@ -29,6 +33,9 @@ export const TEACHER_NAV: NavItem[] = [
   { href: '/t/students', label: 'Students', icon: Users },
   { href: '/t/batches', label: 'Batches', icon: Layers },
   { href: '/t/assessments', label: 'Assessments', icon: ClipboardList },
+  { href: '/t/past-papers', label: 'Past Papers', icon: FileStack },
+  { href: '/t/rankings', label: 'Rankings', icon: Trophy },
+  { href: '/t/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/t/questions', label: 'Question Bank', icon: FileQuestion },
   { href: '/t/syllabus', label: 'Syllabus', icon: BookOpen },
   { href: '/t/settings', label: 'Settings', icon: Settings },
@@ -37,6 +44,9 @@ export const TEACHER_NAV: NavItem[] = [
 export const STUDENT_NAV: NavItem[] = [
   { href: '/s/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/s/assessments', label: 'Assessments', icon: ClipboardList },
+  { href: '/s/past-papers', label: 'Past Papers', icon: FileStack },
+  { href: '/s/progress', label: 'Progress', icon: TrendingUp },
+  { href: '/s/rankings', label: 'Ranking', icon: Trophy },
   { href: '/s/syllabus', label: 'Syllabus', icon: BookOpen },
   { href: '/s/profile', label: 'Profile', icon: User },
 ];

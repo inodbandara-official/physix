@@ -230,6 +230,8 @@ export type AssessmentRow = {
   show_explanations: boolean;
   allow_review: boolean;
   results_released_at: string | null;
+  /** The single assessment that past-paper practice runs through. */
+  past_paper_bank: boolean;
   created_by: string | null;
   published_at: string | null;
   archived_at: string | null;
@@ -272,6 +274,8 @@ export type AttemptRow = {
   max_score: string;
   percentage: string | null;
   pending_manual: number;
+  /** What a past-paper practice covered, e.g. "2019 Paper II · Section B". */
+  practice_label: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -292,6 +296,11 @@ export type AttemptQuestionRow = {
   teacher_comment: string | null;
   marked_by: string | null;
   marked_at: string | null;
+  /** Copied from the question when served, for analytics. */
+  node_id: string | null;
+  unit_id: string | null;
+  difficulty: DifficultyLevel | null;
+  question_type: QuestionType | null;
 }
 
 export type AttemptAnswerRow = {
@@ -299,6 +308,38 @@ export type AttemptAnswerRow = {
   attempt_id: string;
   response: Json | null;
   flagged: boolean;
+  updated_at: string;
+}
+
+export type PastPaperRow = {
+  id: string;
+  year: number;
+  title: string;
+  description: string | null;
+  published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PastPaperQuestionRow = {
+  paper_id: string;
+  question_id: string;
+  question_number: string;
+  section: string | null;
+  position: number;
+  created_at: string;
+}
+
+export type RankingBasis = 'average' | 'total' | 'weighted' | 'recent';
+export type RankingVisibility = 'private' | 'anonymous' | 'batch';
+
+export type RankingSettingsRow = {
+  id: boolean;
+  basis: RankingBasis;
+  recent_count: number;
+  weights: Json;
+  missed_counts_zero: boolean;
+  student_visibility: RankingVisibility;
   updated_at: string;
 }
 
@@ -416,12 +457,31 @@ export interface Database {
         Update: Partial<AttemptAnswerRow>;
         Relationships: [];
       };
+      past_papers: {
+        Row: PastPaperRow;
+        Insert: Insert<PastPaperRow, 'year' | 'title'>;
+        Update: Partial<PastPaperRow>;
+        Relationships: [];
+      };
+      past_paper_questions: {
+        Row: PastPaperQuestionRow;
+        Insert: Insert<PastPaperQuestionRow, 'paper_id' | 'question_id' | 'question_number'>;
+        Update: Partial<PastPaperQuestionRow>;
+        Relationships: [];
+      };
+      ranking_settings: {
+        Row: RankingSettingsRow;
+        Insert: Partial<RankingSettingsRow>;
+        Update: Partial<RankingSettingsRow>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       is_teacher: { Args: Record<string, never>; Returns: boolean };
       current_student_id: { Args: Record<string, never>; Returns: string | null };
-      start_attempt: { Args: { p_assessment_id: string }; Returns: string };
+      start_attempt: { Args: { p_assessment_id: string; p_filter?: Json }; Returns: string };
+      past_paper_question_count: { Args: { p_filter: Json }; Returns: number | null };
       assessment_question_count: { Args: { p_assessment_id: string }; Returns: number | null };
       finalize_attempt: { Args: { p_attempt_id: string; p_results: Json }; Returns: AttemptStatus };
     };
